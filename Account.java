@@ -8,6 +8,7 @@ public class Account {
     public ArrayList<String> friendsList;
     public ArrayList<String> likes;
     public String aboutMe;
+    public ArrayList<String> friendReqs;
 
 
     public Account(String username, String password) {
@@ -18,6 +19,7 @@ public class Account {
         this.friendsList = null;
         this.likes = null;
         this.aboutMe = null;
+        this.friendReqs = null;
 
     }
 
@@ -44,6 +46,10 @@ public class Account {
     public String getAboutMe() {
         return aboutMe;
     }
+    
+    public ArrayList<String> getFriendReqs() {
+        return friendReqs;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -52,19 +58,7 @@ public class Account {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public void setContacts(ArrayList<String> contacts) {
-        this.contacts = contacts;
-    }
-
-    public void setFriendsList(ArrayList<String> friendsList) {
-        this.friendsList = friendsList;
-    }
-
-    public void setLikes(ArrayList<String> likes) {
-        this.likes = likes;
-    }
-
+    
     public void setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
     }
@@ -84,10 +78,17 @@ public class Account {
     public void removeLike(String like) {
         this.likes.remove(this.likes.indexOf(like));
     }
+    
+    public void addFriendReq(String name) {
+        this.friendReqs.add(name);
+    }
+  
+    public void removeFriendReq(String name) {
+        this.friendReqs.remove(name);
+    }
 
     public String toString() {
-
-        return this.username + "," + this.password + "," + this.contacts + "," + this.friendsList + "," + this.likes + "," + this.aboutMe;
+        return this.username + "," + this.password + "," + this.contacts + "," + this.friendsList + "," + this.likes + "," + this.aboutMe + "," + this.friendReqs;
 
     }
 }
