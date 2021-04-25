@@ -1,0 +1,9 @@
+- access the account information to display on the client gui 
+- friends list 
+    - press friends list button, and show the list of friends as jbuttons
+- friend requests
+    - friend request list for each account
+    - if your profile is searched and opened and someone clicks add friend, their name is added to your friends list
+    - click on your friend requests and have the option to click yes or no on accepting them as friends
+    - if you click yes they are added to you friends list
+    - create an is friends method that will check if you are friends with someone when opening their page, and if you are then delete the add friends button 
