@@ -4,14 +4,17 @@ public class Account {
 
     public String username;
     public String password;
+    public ArrayList<String> contacts;
     public ArrayList<String> friendsList;
     public ArrayList<String> likes;
     public String aboutMe;
+    
 
     public Account(String username, String password) {
 
         this.username = username;
         this.password = password;
+        this.contacts = null;
         this.friendsList = null;
         this.likes = null;
         this.aboutMe = null;
@@ -24,6 +27,10 @@ public class Account {
 
     public String getPassword() {
         return password;
+    }
+    
+    public ArrayList<String> getContacts() {
+        return contacts;
     }
 
     public ArrayList<String> getFriendsList() {
@@ -44,6 +51,10 @@ public class Account {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public void setContacts(ArrayList<String> contacts) {
+        this.contacts = contacts;
     }
 
     public void setFriendsList(ArrayList<String> friendsList) {
@@ -76,7 +87,7 @@ public class Account {
 
     public String toString() {
 
-        return this.username + "," + this.password + "," + this.friendsList + "," + this.likes + "," + this.aboutMe;
+        return this.username + "," + this.password + "," + this.contacts + "," + this.friendsList + "," + this.likes + "," + this.aboutMe;
 
     }
 }
