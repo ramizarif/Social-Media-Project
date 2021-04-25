@@ -8,7 +8,7 @@ public class Account {
     public ArrayList<String> friendsList;
     public ArrayList<String> likes;
     public String aboutMe;
-    
+
 
     public Account(String username, String password) {
 
@@ -28,7 +28,7 @@ public class Account {
     public String getPassword() {
         return password;
     }
-    
+
     public ArrayList<String> getContacts() {
         return contacts;
     }
@@ -52,7 +52,7 @@ public class Account {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public void setContacts(ArrayList<String> contacts) {
         this.contacts = contacts;
     }
@@ -91,3 +91,4 @@ public class Account {
 
     }
 }
+// Random Comment
