@@ -409,6 +409,170 @@ public class Test extends JComponent {
                 }
 
             });
+        
+        del.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    int delete = JOptionPane.showConfirmDialog(null,
+                            "Are you sure you like to delete your account?", "Delete?", JOptionPane.YES_NO_OPTION);
+
+                    if (delete == JOptionPane.YES_OPTION) {
+
+                        writer.write("D:" + a.toString());
+                        writer.println();
+                        writer.flush();
+
+                        writer.write("d:" + a.getUsername());
+                        writer.println();
+                        writer.flush();
+
+                        frame.dispose();
+                    }
+
+                }
+            });
+
+        fList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                ArrayList<String> l = a.getFriendsList();
+                ArrayList<JButton> b = new ArrayList<>();
+
+                JFrame f = new JFrame("Profile");
+                Container con = f.getContentPane();
+
+                con.setLayout(new BorderLayout());
+                client = new Client();
+                con.add(client, BorderLayout.CENTER);
+
+                f.setSize(600, 400);
+                f.setLocationRelativeTo(null);
+                f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                f.setVisible(true);
+
+                JPanel panel = new JPanel();
+
+                for (int i = 0; i < l.size(); i++) {
+
+                    JButton j = new JButton(l.get(i));
+                    b.add(j);
+                }
+
+                for (int i = 0; i < b.size(); i++) {
+
+                    panel.add(b.get(i));
+
+                }
+                con.add(panel, BorderLayout.CENTER);
+
+                for (int i = 0; i < b.size(); i++) {
+
+                    String s = l.get(i);
+
+                    b.get(i).addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                            f.dispose();
+                            change.setVisible(false);
+                            del.setVisible(false);
+
+                            writer.write("G:" + s);
+                            writer.println();
+                            writer.flush();
+
+                            String account = "";
+
+                            try {
+                                account = reader.readLine();
+                            } catch (IOException ioException) {
+                            }
+
+                            String temp = account.substring(2);
+                            temp = temp.substring(temp.indexOf(",") + 1);
+
+                            String p = temp.substring(0, temp.indexOf(","));
+
+                            temp = temp.substring(temp.indexOf(",") + 1);
+
+                            String cont = temp.substring(temp.indexOf("[") + 1, temp.indexOf("]"));
+                            String[] C = cont.split(",");
+                            ArrayList<String> c = new ArrayList<>();
+
+                            for (String t : C) {
+                                c.add(t);
+                            }
+
+                            temp = temp.substring(temp.indexOf("]") + 2);
+                            String fren = temp.substring(1, temp.indexOf("]"));
+                            String[] F = fren.split(",");
+                            ArrayList<String> f = new ArrayList<>();
+
+                            for (String t : F) {
+                                f.add(t);
+                            }
+
+                            temp = temp.substring(temp.indexOf("]") + 2);
+                            String lik = temp.substring(1, temp.indexOf("]"));
+                            String[] L = lik.split(",");
+                            ArrayList<String> l = new ArrayList<>();
+
+                            for (String t : L) {
+                                l.add(t);
+                            }
+
+                            temp = temp.substring(temp.indexOf("]") + 1);
+                            String ab = temp.substring(0, temp.indexOf("[") - 1);
+
+                            temp = temp.substring(temp.indexOf("[") + 1);
+                            String fq = temp.substring(0, temp.indexOf("]"));
+                            String[] Q = fq.split(",");
+                            ArrayList<String> q = new ArrayList<>();
+
+                            for (String t : Q) {
+                                q.add(t);
+                            }
+
+                            if (ab.equals(",")) {
+                                ab = "";
+                            }
+
+                            name.setText(s);
+                            contact.setText(c.toString());
+                            interests.setText(l.toString());
+                            abMe.setText(ab);
+
+                            exit.setVisible(true);
+
+
+                            exit.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+
+                                    name.setText(a.getUsername());
+                                    contact.setText(a.getContacts().toString());
+                                    interests.setText(a.getLikes().toString());
+                                    abMe.setText(a.getAboutMe());
+                                    change.setVisible(true);
+                                    del.setVisible(true);
+                                    exit.setVisible(false);
+
+                                }
+                            });
+
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+
+            frame.setVisible(true);
+
+    }
+}
 
         frame.setVisible(true);
 
