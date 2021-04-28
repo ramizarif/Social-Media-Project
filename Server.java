@@ -13,24 +13,28 @@ public class Server {
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
-        File aFile = new File("accounts.txt");
-        FileReader aRead = new FileReader(aFile);
-        BufferedReader abfr = new BufferedReader(aRead);
-        FileOutputStream afos = new FileOutputStream(aFile, true);
-        PrintWriter apw = new PrintWriter(afos);
-
-        File uFile = new File("usernames.txt");
-        FileReader uRead = new FileReader(uFile);
-        BufferedReader ubfr = new BufferedReader(uRead);
-        FileOutputStream ufos = new FileOutputStream(uFile, true);
-        PrintWriter upw = new PrintWriter(ufos);
-
         boolean x = false;
         while (true) {
 
             try {
 
+                File aFile = new File("accounts.txt");
+                FileReader aRead = new FileReader(aFile);
+                BufferedReader abfr = new BufferedReader(aRead);
+                FileOutputStream afos = new FileOutputStream(aFile, true);
+                PrintWriter apw = new PrintWriter(afos);
+
+                File uFile = new File("usernames.txt");
+                FileReader uRead = new FileReader(uFile);
+                BufferedReader ubfr = new BufferedReader(uRead);
+                FileOutputStream ufos = new FileOutputStream(uFile, true);
+                PrintWriter upw = new PrintWriter(ufos);
+
                 String command = reader.readLine();
+                //if(command != null) {
+                 //   System.out.println(command);
+                //}
+
                 String type = command.substring(0, 2);
 
                 //Each time the server receives a line, it will have a header with a letter that will direct it
@@ -57,7 +61,7 @@ public class Server {
 
                                 if (line.substring(0, ind).equals(command.substring(2))) {
 
-                                    writer.write("V");
+                                    writer.write("V:" + line);
                                     writer.println();
                                     writer.flush();
                                     y = false;
@@ -122,10 +126,29 @@ public class Server {
 
                         upw.println(user);
                         upw.flush();
-
                         break;
 
+                    case "D:": //Delete line from accounts file
 
+                        delete("accounts.txt", command.substring(2));
+                        break;
+
+                    case "d:": //Delete line from usernames file
+
+                        delete("usernames.txt", command.substring(2));
+                        break;
+
+                    case "R:":
+
+                        apw.println(command.substring(2));
+                        apw.flush();
+                        break;
+
+                    case "r:":
+
+                        upw.println(command.substring(2));
+                        upw.flush();
+                        break;
 
                 }
 
@@ -137,10 +160,39 @@ public class Server {
             } catch (Exception e) {
 
             }
+
         }
 
-        writer.close();
-        reader.close();
+    }
+
+    private static void delete(String filename, String replace) throws IOException {
+
+        File File = new File(filename);
+        FileReader Read = new FileReader(File);
+        BufferedReader bfr = new BufferedReader(Read);
+
+        File newFile = new File("temp.txt");
+        FileOutputStream fos = new FileOutputStream(newFile, true);
+        PrintWriter pw = new PrintWriter(fos);
+
+        while (true) {
+
+            String line = bfr.readLine();
+
+            if (line == null) {
+                break;
+            }
+
+            if (line.equals(replace) || line.equals("")) {
+
+            } else {
+                pw.println(line);
+                pw.flush();
+            }
+
+        }
+        boolean y = File.delete();
+        boolean x = newFile.renameTo(new File(filename));
 
     }
 
