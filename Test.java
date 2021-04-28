@@ -569,11 +569,6 @@ public class Test extends JComponent {
 
         });
 
-            frame.setVisible(true);
-
-    }
-}
-
         frame.setVisible(true);
 
     }
