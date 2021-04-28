@@ -15,11 +15,23 @@ public class Account {
 
         this.username = username;
         this.password = password;
-        this.contacts = null;
-        this.friendsList = null;
-        this.likes = null;
-        this.aboutMe = null;
-        this.friendReqs = null;
+        this.contacts = new ArrayList<String>();
+        this.friendsList = new ArrayList<String>();
+        this.likes = new ArrayList<String>();
+        this.aboutMe = "";
+        this.friendReqs = new ArrayList<String>();
+
+    }
+
+    public Account(String username, String password, ArrayList<String> contacts, ArrayList<String> friendsList, ArrayList<String> likes, String aboutMe, ArrayList<String> friendReqs) {
+
+        this.username = username;
+        this.password = password;
+        this.contacts = contacts;
+        this.friendsList = friendsList;
+        this.likes = likes;
+        this.aboutMe = aboutMe;
+        this.friendReqs = friendReqs;
 
     }
 
@@ -46,7 +58,7 @@ public class Account {
     public String getAboutMe() {
         return aboutMe;
     }
-    
+
     public ArrayList<String> getFriendReqs() {
         return friendReqs;
     }
@@ -58,7 +70,7 @@ public class Account {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public void setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
     }
@@ -78,13 +90,21 @@ public class Account {
     public void removeLike(String like) {
         this.likes.remove(this.likes.indexOf(like));
     }
-    
+
     public void addFriendReq(String name) {
         this.friendReqs.add(name);
     }
-  
+
     public void removeFriendReq(String name) {
         this.friendReqs.remove(name);
+    }
+
+    public void addContact(String contact) {
+        this.contacts.add(contact);
+    }
+
+    public void removeContact(String contact) {
+        this.contacts.remove(contact);
     }
 
     public String toString() {
@@ -92,4 +112,3 @@ public class Account {
 
     }
 }
-// Random Comment
