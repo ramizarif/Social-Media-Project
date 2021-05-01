@@ -144,21 +144,25 @@ public class Client extends JComponent implements Runnable {
         tpanel.add(name);
         tpanel.setBackground(Color.orange);
         content.add(tpanel, BorderLayout.NORTH);
+        setSize(375, 250);
 
         JPanel rpanel = new JPanel();
         rpanel.add(interests);
         rpanel.setBackground(Color.orange);
         content.add(rpanel, BorderLayout.EAST);
+        setSize(375, 250);
 
         JPanel cpanel = new JPanel();
         cpanel.add(abMe);
         cpanel.setBackground(Color.orange);
         content.add(cpanel, BorderLayout.WEST);
+        setSize(375, 250);
 
         JPanel dpanel = new JPanel();
         dpanel.add(fList);
         dpanel.setBackground(Color.orange);
         content.add(dpanel, BorderLayout.SOUTH);
+        setSize(375, 250);
 
         fList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
