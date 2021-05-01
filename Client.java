@@ -132,6 +132,7 @@ public class Client extends JComponent implements Runnable {
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setBackground(Color.blue);
         frame.setVisible(true);
 
         name = new JLabel("Name");
@@ -141,24 +142,28 @@ public class Client extends JComponent implements Runnable {
 
         JPanel tpanel = new JPanel();
         tpanel.add(name);
+        tpanel.setBackground(Color.orange);
         content.add(tpanel, BorderLayout.NORTH);
 
         JPanel rpanel = new JPanel();
         rpanel.add(interests);
+        rpanel.setBackground(Color.orange);
         content.add(rpanel, BorderLayout.EAST);
 
         JPanel cpanel = new JPanel();
         cpanel.add(abMe);
+        cpanel.setBackground(Color.orange);
         content.add(cpanel, BorderLayout.WEST);
 
         JPanel dpanel = new JPanel();
         dpanel.add(fList);
+        dpanel.setBackground(Color.orange);
         content.add(dpanel, BorderLayout.SOUTH);
 
         fList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                
+
 
             }
         });
