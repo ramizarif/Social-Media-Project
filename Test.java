@@ -18,6 +18,25 @@ public class Test extends JComponent {
     static JLabel contact;
     static JButton fList;
     static JButton change;
+    static JButton search; 
+    static JButton checkFriendRequests; 
+
+    //these labels will be used when an account is searched
+    static JLabel searchedName; 
+    static JLabel searchedAbMe;
+    static JLabel searchedInterests;
+    static JLabel searchedContacts;
+
+
+    //these buttons will be used when an account is searched
+    static JButton home; 
+    static JButton addFriend; 
+    //this one will be when you open someone else's friends list and not yours
+    static JButton otherFriendsList; 
+
+    //will allow the searched profile buttons to exist before used
+    static boolean homeConditional;
+    static boolean addFriendConditional;  
 
     static Client client;
 
@@ -175,6 +194,10 @@ public class Test extends JComponent {
         contact = new JLabel(a.getContacts().toString());
         fList = new JButton("Friends List");
         change = new JButton("Change information");
+        search = new JButton("Search Profiles");
+        checkFriendRequests = new JButton("Friend Requests");
+
+        
 
         JPanel tpanel = new JPanel();
         tpanel.add(name);
@@ -192,7 +215,10 @@ public class Test extends JComponent {
         JPanel dpanel = new JPanel();
         dpanel.add(fList);
         dpanel.add(change);
+        dpanel.add(search); 
+        dpanel.add(checkFriendRequests);
         content.add(dpanel, BorderLayout.SOUTH);
+
 
         boolean pat = false;
 
@@ -409,6 +435,8 @@ public class Test extends JComponent {
                 }
 
             });
+
+        /*
         
         del.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -569,9 +597,423 @@ public class Test extends JComponent {
 
         });
 
+        */
+        
+
         frame.setVisible(true);
 
+        checkFriendRequests.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String[] potentialFriends = new String [a.getFriendReqs().size()]; 
+                for (int i = 0; i < a.getFriendReqs().size(); i++) {
+                    potentialFriends[i] = a.getFriendReqs().get(i);
+                }
+
+                if (potentialFriends.length == 0) {
+                    do { 
+                        JOptionPane.showMessageDialog(null, "No Friend Requests", "Friend Requests", JOptionPane.YES_OPTION);
+                        break; 
+                    } while (true);
+                } else {
+                    String pendingFriends = (String) JOptionPane.showInputDialog(null, "Which requests would you like to accept/decline?",
+                "Friend Requests", JOptionPane.QUESTION_MESSAGE, null, potentialFriends, potentialFriends[0]);
+
+                if (pendingFriends != null) {
+                    String newFriendInfo; 
+                    do {
+
+                        int friendChoice = JOptionPane.showConfirmDialog(null, "Would you like to be friends with " + pendingFriends + "?", 
+                        "Friend Requests", JOptionPane.YES_NO_OPTION);
+
+                        if (friendChoice == JOptionPane.YES_OPTION) {
+                            //get the user 
+                            a.addFriend(pendingFriends);
+                            writer.write("Z:" + pendingFriends);
+                            writer.println();
+                            writer.flush();
+                            newFriendInfo = "";
+                            break; 
+
+                        } else {
+                            a.removeFriendReq(pendingFriends);
+                        }
+
+                    } while (true);
+
+                    try {
+                        newFriendInfo = reader.readLine();
+
+                    } catch (Exception f) {
+                        System.out.println(f.getStackTrace());
+                    }
+
+                    String checkCommand = newFriendInfo.substring(0,2);
+                    String addedFriendString = newFriendInfo.substring(2);
+
+                    
+                    String[] addedFriendSplit = addedFriendString.split(",");
+                    ArrayList<String> con = new ArrayList<String>(); 
+                    ArrayList<String> fl = new ArrayList<String>();
+                    ArrayList<String> like = new ArrayList<String>();
+                    String aboutMe = addedFriendSplit[4];
+                    ArrayList<String> fr = new ArrayList<String>();
+                    Account addedFriend = new Account(addedFriendSplit[0], addedFriendSplit[1], con, fl, like, aboutMe, fr);
+                    addedFriend.getFriendsList().add(a.getUsername());
+                }
+
+                 
+                            
+
+                     
+
+                    
+                }
+            }
+        });
+
+        search.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String checkType; 
+                do {    
+                    String searchName =  JOptionPane.showInputDialog(null, "Search Profile",
+                    "Search", JOptionPane.QUESTION_MESSAGE);
+                    String sendServer = ("Z:" + searchName);
+                    writer.write(sendServer);
+                    writer.println();
+                    writer.flush();  
+                    checkType = "";
+
+                    break; 
+                
+                } while(true);
+
+                
+                try {
+                    checkType = reader.readLine();
+                } catch (IOException ioException) {
+                    JOptionPane.showMessageDialog(null, "An error occurred. Try again.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
+
+                    String checkCommand = checkType.substring(0,2);
+                    String searchedAccString = checkType.substring(2);
+
+                    
+                    String[] searchedAccSplit = searchedAccString.split(",");
+                    ArrayList<String> con = new ArrayList<String>(); 
+                    ArrayList<String> fl = new ArrayList<String>();
+                    ArrayList<String> like = new ArrayList<String>();
+                    String aboutMe = searchedAccSplit[4];
+                    ArrayList<String> fr = new ArrayList<String>();
+                    Account searchedAcc = new Account(searchedAccSplit[0], searchedAccSplit[1], con, fl, like, aboutMe, fr);
+                    
+                    //will check if the two accs are friends
+                    //this isnt working 
+                        //logic? or friends list not updating?
+                    //searchedAcc.getFriendsList().add("tax7");
+                    searchedAcc.setAboutMe("I am a friend of the test account");
+                    boolean isFriend = a.isFriend(searchedAcc); 
+                    System.out.println(isFriend);
+
+                    if (isFriend) {
+                        //show the account without the add friend button
+                            //add back to home button
+
+                            //setting the text for all the jlabels
+                            name.setText(searchedAcc.getUsername());
+                            abMe.setText(searchedAcc.getAboutMe());
+                            interests.setText(searchedAcc.getLikes().toString());
+                            contact.setText(searchedAcc.getContacts().toString());
+                            
+                            //make all login profile jbuttons invisible
+                            fList.setVisible(false);
+                            change.setVisible(false);
+                            search.setVisible(false);
+                            checkFriendRequests.setVisible(false);
+
+                            //create new jlabels
+                            searchedName = new JLabel(a.getUsername());
+                            searchedInterests = new JLabel(a.getLikes().toString());
+                            searchedAbMe = new JLabel(a.getAboutMe());
+                            searchedContacts = new JLabel(a.getContacts().toString());
+                            otherFriendsList = new JButton(searchedAcc.getUsername() + "'s Friends List");
+                            // dont need this bc they friends addFriend = new JButton("Add Friend");
+                            home = new JButton("Home");
+
+                            //JPanel bottom = new JPanel();
+                            dpanel.add(otherFriendsList);
+                            dpanel.add(home);
+                            content.add(dpanel, BorderLayout.SOUTH); 
+                            
+                            otherFriendsList.setVisible(true);
+                            home.setVisible(true); 
+
+                            homeConditional = true; 
+                            
+                            
+
+                            /*
+                            Container parentName = name.getParent(); 
+                            parentName.remove(name); 
+                            Container parentInterests = interests.getParent();
+                            parentInterests.remove(interests);
+                            Container parentAbMe = abMe.getParent();
+                            parentAbMe.remove(abMe);
+                            Container parentContact = contact.getParent();
+                            parentContact.remove(contact);
+                            Container parentFList = fList.getParent();
+                            parentFList.remove(fList);
+                            Container parentSearch = search.getParent();
+                            parentSearch.remove(search); 
+                            Container parentChange = change.getParent();
+                            parentChange.remove(change); 
+
+                            parentName.revalidate();
+                            parentName.repaint();
+                            parentInterests.revalidate();
+                            parentInterests.repaint();
+                            parentAbMe.revalidate();
+                            parentAbMe.repaint();
+                            parentContact.revalidate();
+                            parentContact.repaint();
+                            parentFList.revalidate();
+                            parentFList.repaint();
+                            parentSearch.revalidate();
+                            parentSearch.repaint();
+                            parentChange.revalidate();
+                            parentChange.repaint(); 
+
+                            //remove the panels
+                            Container parentTPanel = tpanel.getParent();
+                            parentTPanel.remove(tpanel);
+                            Container parentRPanel = rpanel.getParent();
+                            parentRPanel.remove(rpanel);
+                            Container parentCPanel = cpanel.getParent();
+                            parentCPanel.remove(cpanel);
+                            Container parentDPanel = dpanel.getParent();
+                            parentDPanel.remove(dpanel);
+
+                            parentTPanel.revalidate();
+                            parentTPanel.repaint();
+                            parentRPanel.revalidate();
+                            parentRPanel.repaint();
+                            parentCPanel.revalidate();
+                            parentCPanel.repaint();
+                            parentDPanel.revalidate();
+                            parentDPanel.repaint();
+
+                             
+
+                            //getContentPane().removeAll(); 
+                            //draw up the searched profile screen
+                            name = new JLabel(searchedAcc.getUsername());
+                            interests = new JLabel(searchedAcc.getLikes().toString());
+                            abMe = new JLabel(searchedAcc.getAboutMe());
+                            contact = new JLabel(searchedAcc.getContacts().toString());
+                            otherFriendsList = new JButton(searchedAcc.getUsername() + "'s Friends List");
+                            //addFriend = new JButton("Change information");
+                            home = new JButton("Home");
+
+                            
+                            JPanel tpanel = new JPanel();
+                            tpanel.add(name);
+                            tpanel.add(contact);
+                            content.add(tpanel, BorderLayout.NORTH);
+                    
+                            JPanel rpanel = new JPanel();
+                            rpanel.add(interests);
+                            content.add(rpanel, BorderLayout.EAST);
+                    
+                            JPanel cpanel = new JPanel();
+                            cpanel.add(abMe);
+                            content.add(cpanel, BorderLayout.WEST);
+                    
+                            JPanel dpanel = new JPanel();
+                            dpanel.add(otherFriendsList);
+                            //dpanel.add(addFriend);
+                            dpanel.add(home); 
+                            content.add(dpanel, BorderLayout.SOUTH);
+
+                            */
+
+                            
+
+                    } else {
+                        //show the account with the add friend button, replace search
+                            //add back to home button
+                        name.setText(searchedAcc.getUsername());
+                        abMe.setText(searchedAcc.getAboutMe());
+                        interests.setText(searchedAcc.getLikes().toString());
+                        contact.setText(searchedAcc.getContacts().toString());
+                        
+                        //make all login profile jbuttons invisible
+                        fList.setVisible(false);
+                        change.setVisible(false);
+                        search.setVisible(false);
+                        checkFriendRequests.setVisible(false);
+
+                        //create new jlabels
+                        searchedName = new JLabel(a.getUsername());
+                        searchedInterests = new JLabel(a.getLikes().toString());
+                        searchedAbMe = new JLabel(a.getAboutMe());
+                        searchedContacts = new JLabel(a.getContacts().toString());
+                        otherFriendsList = new JButton(searchedAcc.getUsername() + "'s Friends List");
+                        addFriend = new JButton("Add Friend");
+                        home = new JButton("Home");
+
+                        JPanel bottom = new JPanel();
+                        bottom.add(otherFriendsList);
+                        bottom.add(home);
+                        bottom.add(addFriend);  
+                        content.add(bottom, BorderLayout.SOUTH); 
+
+                        homeConditional = true;   
+                        addFriendConditional = true; 
+                        
+                    }
+
+                if (homeConditional) {
+                    home.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            
+                            //set all text back to profile information
+                            name.setText(a.getUsername());
+                            abMe.setText(a.getAboutMe());
+                            interests.setText(a.getLikes().toString());
+                            contact.setText(a.getContacts().toString());
+        
+                            home.setVisible(false);
+                            addFriend.setVisible(false);
+                            otherFriendsList.setVisible(false);
+        
+                            //profile buttons become visible again
+                            fList.setVisible(true);
+                            change.setVisible(true);
+                            search.setVisible(true);
+                            checkFriendRequests.setVisible(true);
+        
+                            homeConditional = false; 
+        
+                            /*
+                            parentName.remove(name); 
+                            //Container parentInterests = interests.getParent();
+                            parentInterests.remove(interests);
+                            //Container parentAbMe = abMe.getParent();
+                            parentAbMe.remove(abMe);
+                            //Container parentContact = contact.getParent();
+                            parentContact.remove(contact);
+                            Container parentotherFList = otherFriendsList.getParent();
+                            parentotherFList.remove(otherFriendsList);
+                            //Container parentSearch = search.getParent();
+                            //parentSearch.remove(search); 
+                            //Container parentChange = change.getParent();
+                            parentChange.remove(change); 
+        
+                            parentName.revalidate();
+                            parentName.repaint();
+                            parentInterests.revalidate();
+                            parentInterests.repaint();
+                            parentAbMe.revalidate();
+                            parentAbMe.repaint();
+                            parentContact.revalidate();
+                            parentContact.repaint();
+                            parentotherFList.revalidate();
+                            parentotherFList.repaint();
+                            //parentSearch.revalidate();
+                            //parentSearch.repaint();
+                            parentChange.revalidate();
+                            parentChange.repaint(); 
+        
+                            //remove the panels
+                            //Container parentTPanel = tpanel.getParent();
+                            parentTPanel.remove(tpanel);
+                            //Container parentRPanel = rpanel.getParent();
+                            parentRPanel.remove(rpanel);
+                            //Container parentCPanel = cpanel.getParent();
+                            parentCPanel.remove(cpanel);
+                            //Container parentDPanel = dpanel.getParent();
+                            parentDPanel.remove(dpanel);
+        
+                            parentTPanel.revalidate();
+                            parentTPanel.repaint();
+                            parentRPanel.revalidate();
+                            parentRPanel.repaint();
+                            parentCPanel.revalidate();
+                            parentCPanel.repaint();
+                            parentDPanel.revalidate();
+                            parentDPanel.repaint();
+        
+                                    
+        
+                            //getContentPane().removeAll(); 
+                            //draw up the searched profile screen
+                            name = new JLabel(a.getUsername());
+                            interests = new JLabel(a.getLikes().toString());
+                            abMe = new JLabel(a.getAboutMe());
+                            contact = new JLabel(a.getContacts().toString());
+                            fList = new JButton("Friends List");
+                            change = new JButton("Change information");
+                            search = new JButton("Search Profiles");
+        
+                                
+                                
+                            JPanel tpanel = new JPanel();
+                            tpanel.add(name);
+                            tpanel.add(contact);
+                            content.add(tpanel, BorderLayout.NORTH);
+        
+                            JPanel rpanel = new JPanel();
+                            rpanel.add(interests);
+                            content.add(rpanel, BorderLayout.EAST);
+        
+                            JPanel cpanel = new JPanel();
+                            cpanel.add(abMe);
+                            content.add(cpanel, BorderLayout.WEST);
+        
+                            JPanel dpanel = new JPanel();
+                            dpanel.add(fList);
+                            dpanel.add(change);
+                            dpanel.add(search); 
+                            content.add(dpanel, BorderLayout.SOUTH);
+                            */
+                
+                            }
+                        });
+                }
+                
+            //friend request stuff here
+            if (addFriendConditional) {
+                home.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        boolean x = true; 
+                        for (int i = 0; i < searchedAcc.getFriendsList().size(); i++) {
+                            if (a.getUsername() == searchedAcc.getFriendsList().get(i)) {
+                                x = false;
+                                JOptionPane.showConfirmDialog(null, "Already Added...", "Friend Request", JOptionPane.OK_CANCEL_OPTION); 
+                            }
+                        }
+                        if (x) {
+                            searchedAcc.addFriendReq(a.getUsername());
+                            JOptionPane.showConfirmDialog(null, "Added Friend!", "Friend Request", JOptionPane.OK_CANCEL_OPTION);
+                        }
+                       
+                    }
+                });
+            }
+
+
+            }
+        });
+
+        
+
+
+        frame.setVisible(true); 
+
     }
+
+    
 }
 
 //end of program

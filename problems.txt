@@ -1,0 +1,3 @@
+ramiz arif: 
+- got it to search and display profile
+    - problem is how to go home and get the original buttons to work again

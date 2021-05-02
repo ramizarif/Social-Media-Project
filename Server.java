@@ -2,10 +2,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Locale;
+import java.util.ArrayList;
 
 public class Server {
 
     public static void main(String[] args) throws IOException {
+
 
         ServerSocket serverSocket = new ServerSocket(4242);
         Socket socket = serverSocket.accept();
@@ -36,6 +38,7 @@ public class Server {
                 //}
 
                 String type = command.substring(0, 2);
+                //System.out.println(command); 
 
                 //Each time the server receives a line, it will have a header with a letter that will direct it
                 // to what it needs to do
@@ -118,6 +121,7 @@ public class Server {
 
                     case "N:": //Creates a new account in database
 
+                        System.out.println("This works");
                         String ac = command.substring(2);
                         String user = ac.substring(0, ac.indexOf(","));
 
@@ -148,6 +152,33 @@ public class Server {
 
                         upw.println(command.substring(2));
                         upw.flush();
+                        break;
+                    
+                    case "Z:":
+                        String searchedName = command.substring(2);
+                        System.out.println(searchedName); 
+                        ArrayList<String> empty = new ArrayList<>(); 
+                        String accLines = abfr.readLine(); 
+                        while (accLines != null) { 
+                            String[] accSplit = accLines.split(",");
+                            String accName = accSplit[0];
+                            if (accName.equals(searchedName)) {
+                                writer.write("N:" + accLines);
+                                writer.println();
+                                writer.flush();
+                                empty.add("a");
+                                break; 
+                            }
+                            accLines = abfr.readLine();
+                        }
+                        //no results
+                        String noResults = "No Results";
+                        if (empty.size() < 1) {
+                            writer.write("I:" + noResults);
+                            writer.println();
+                            writer.flush(); 
+                        }
+
                         break;
 
                 }
