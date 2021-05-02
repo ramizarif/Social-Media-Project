@@ -111,4 +111,17 @@ public class Account {
         return this.username + "," + this.password + "," + this.contacts + "," + this.friendsList + "," + this.likes + "," + this.aboutMe + "," + this.friendReqs;
 
     }
+
+    public boolean isFriend(Account o) {
+        for (int i = 0; i < friendsList.size(); i++) {
+            if (o.getUsername() == friendsList.get(i)) {
+                return true; 
+            } 
+        }
+        for (int k = 0; k < o.getFriendsList().size(); k++) {
+            if (username == o.getFriendsList().get(k)); 
+            return true; 
+        }
+        return false; 
+    }
 }
