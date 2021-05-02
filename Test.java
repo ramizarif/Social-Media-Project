@@ -13,11 +13,12 @@ import java.util.ArrayList;
 public class Test extends JComponent {
 
     static JLabel name;
-    static JLabel abMe;
-    static JLabel interests;
+    static JTextArea abMe;
+    static JTextArea interests;
     static JLabel contact;
     static JButton fList;
     static JButton change;
+    static JButton del;
 
     static Client client;
 
@@ -27,13 +28,15 @@ public class Test extends JComponent {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter writer = new PrintWriter(socket.getOutputStream());
-
         Account a;
+        Account b;
 
         String[] options = {"Login", "Create New Account"};
         int result = JOptionPane.showOptionDialog(null, "Would you like to login or create a new account?", "Ready?",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                 null, options, options[1]);
+        boolean gui = true;
+        boolean ender = false;
 
         if (result == JOptionPane.YES_OPTION) {
 
@@ -47,11 +50,29 @@ public class Test extends JComponent {
                     username = JOptionPane.showInputDialog(null, "Enter Username",
                             "Login", JOptionPane.QUESTION_MESSAGE);
 
+                    if (username == null) {
+                        username = "break";
+                        gui = false;
+                        ender = true;
+                        break;
+                    }
+
                 } while ((username == null) || (username.isBlank()));
 
                 do {
+
+                    if (ender) { password = "break"; break; }
+
                     password = JOptionPane.showInputDialog(null, "Enter Password",
                             "Login", JOptionPane.QUESTION_MESSAGE);
+
+                    if (password == null) {
+                        username = "break";
+                        password = "break";
+                        gui = false;
+                        ender = true;
+                        break;
+                    }
 
                 } while ((password == null) || (password.isBlank()));
 
@@ -71,17 +92,31 @@ public class Test extends JComponent {
                     String[] C = con.split(",");
                     ArrayList<String> c = new ArrayList<>();
 
-                    for (String t: C) {
-                        c.add(t);
+                    for (String t : C) {
+
+                        if (t.indexOf(" ") == 0) {
+                            c.add(t.substring(1));
+                        } else {
+                            c.add(t);
+                        }
                     }
 
-                    temp = temp.substring(temp.indexOf("]") + 2);
-                    String fren = temp.substring(1, temp.indexOf("]"));
+                    temp = temp.substring(temp.indexOf("]") + 3);
+                    String fren = temp.substring(0, temp.indexOf("]"));
                     String[] F = fren.split(",");
                     ArrayList<String> f = new ArrayList<>();
 
-                    for (String t: F) {
-                        f.add(t);
+                    for (String t : F) {
+
+                        if (t.indexOf(" ") == 0) {
+                            f.add(t.substring(1));
+                        } else {
+                            f.add(t);
+                        }
+                    }
+
+                    if (f.get(0).equals("")) {
+                        f.remove(0);
                     }
 
                     temp = temp.substring(temp.indexOf("]") + 2);
@@ -89,11 +124,11 @@ public class Test extends JComponent {
                     String[] L = lik.split(",");
                     ArrayList<String> l = new ArrayList<>();
 
-                    for (String t: L) {
+                    for (String t : L) {
                         l.add(t);
                     }
 
-                    temp = temp.substring(temp.indexOf("]") + 1);
+                    temp = temp.substring(temp.indexOf("]") + 2);
                     String ab = temp.substring(0, temp.indexOf("[") - 1);
 
                     temp = temp.substring(temp.indexOf("[") + 1);
@@ -101,7 +136,7 @@ public class Test extends JComponent {
                     String[] Q = fq.split(",");
                     ArrayList<String> q = new ArrayList<>();
 
-                    for (String t: Q) {
+                    for (String t : Q) {
                         q.add(t);
                     }
 
@@ -120,7 +155,7 @@ public class Test extends JComponent {
 
             } while (true);
 
-        } else {
+        } else if (result == JOptionPane.NO_OPTION) {
 
             //Create a new account here
             String newUser;
@@ -154,424 +189,552 @@ public class Test extends JComponent {
             writer.println();
             writer.flush();
 
+        } else {
+            gui = false;
+            a = null;
         }
 
         //Show profile in complex gui with loop, maybe a run method
+        if (gui) {
 
-        JFrame frame = new JFrame("Profile");
-        Container content = frame.getContentPane();
+            JFrame frame = new JFrame("Profile");
+            frame.setLayout(new GridLayout(2,2));
+            frame.setSize(600, 400);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        content.setLayout(new BorderLayout());
-        client = new Client();
-        content.add(client, BorderLayout.CENTER);
+            name = new JLabel(a.getUsername());
+            interests = new JTextArea(a.getLikes().toString());
+            abMe = new JTextArea(a.getAboutMe());
+            contact = new JLabel(a.getContacts().toString());
+            fList = new JButton("Friends List");
+            change = new JButton("Change information");
+            del = new JButton("Delete Profile");
+            JButton exit = new JButton("My Profile");
+            JButton ie = new JButton("Import/Export");
+            JLabel settings = new JLabel("Settings:");
+            JLabel iTitle = new JLabel("My Interests:");
+            JLabel aTitle = new JLabel("About Me:");
 
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            abMe.setColumns(23);
+            abMe.setRows(9);
+            abMe.setWrapStyleWord(true);
+            abMe.setLineWrap(true);
+            abMe.setEditable(false);
 
-        name = new JLabel(a.getUsername());
-        interests = new JLabel(a.getLikes().toString());
-        abMe = new JLabel(a.getAboutMe());
-        contact = new JLabel(a.getContacts().toString());
-        fList = new JButton("Friends List");
-        change = new JButton("Change information");
+            interests.setColumns(23);
+            interests.setRows(9);
+            interests.setWrapStyleWord(true);
+            interests.setLineWrap(true);
+            interests.setEditable(false);
 
-        JPanel tpanel = new JPanel();
-        tpanel.add(name);
-        tpanel.add(contact);
-        content.add(tpanel, BorderLayout.NORTH);
+            JPanel tpanel = new JPanel();
+            tpanel.add(name);
+            tpanel.add(contact);
+            frame.add(tpanel);
 
-        JPanel rpanel = new JPanel();
-        rpanel.add(interests);
-        content.add(rpanel, BorderLayout.EAST);
+            JPanel rpanel = new JPanel();
+            rpanel.add(iTitle);
+            rpanel.add(interests);
+            frame.add(rpanel);
 
-        JPanel cpanel = new JPanel();
-        cpanel.add(abMe);
-        content.add(cpanel, BorderLayout.WEST);
+            JPanel cpanel = new JPanel();
+            cpanel.add(aTitle);
+            cpanel.add(abMe, BorderLayout.SOUTH);
+            frame.add(cpanel);
 
-        JPanel dpanel = new JPanel();
-        dpanel.add(fList);
-        dpanel.add(change);
-        content.add(dpanel, BorderLayout.SOUTH);
+            JPanel dpanel = new JPanel();
+            dpanel.add(settings);
+            dpanel.add(ie);
+            dpanel.add(fList);
+            dpanel.add(change);
+            dpanel.add(del);
+            dpanel.add(exit);
+            exit.setVisible(false);
+            frame.add(dpanel);
 
-        boolean pat = false;
+            frame.setVisible(true);
 
-        frame.setVisible(true);
+                frame.setVisible(true);
 
-        change.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+                change.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
 
-                String[] standingOptions = {"Username", "Password", "Contacts", "Interests"};
-                String standing = (String) JOptionPane.showInputDialog(null, "What would you like to change?",
-                        "Change Information", JOptionPane.QUESTION_MESSAGE, null, standingOptions, standingOptions[0]);
+                        String[] standingOptions = {"Username", "Password", "Contacts", "Interests", "About Me"};
+                        String standing = (String) JOptionPane.showInputDialog(null, "What would you like to change?",
+                                "Change Information", JOptionPane.QUESTION_MESSAGE, null, standingOptions, standingOptions[0]);
 
-                if (standing != null) {
+                        if (standing != null) {
 
-                    switch (standing) {
+                            switch (standing) {
 
-                        case "Username":
+                                case "Username":
 
-                            do {
-                                String newUser = JOptionPane.showInputDialog(null, "Enter A New Username",
-                                        "Name Change", JOptionPane.QUESTION_MESSAGE);
+                                    do {
+                                        String newUser = JOptionPane.showInputDialog(null, "Enter A New Username",
+                                                "Name Change", JOptionPane.QUESTION_MESSAGE);
 
-                                writer.write("C:" + newUser);
-                                writer.println();
-                                writer.flush();
+                                        writer.write("C:" + newUser);
+                                        writer.println();
+                                        writer.flush();
 
-                                String check = "";
+                                        String check = "";
 
-                                try {
-                                    check = reader.readLine();
-                                } catch (IOException ioException) {
-                                    JOptionPane.showMessageDialog(null, "An error occurred. Try again.", "Error",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
+                                        try {
+                                            check = reader.readLine();
+                                        } catch (IOException ioException) {
+                                            JOptionPane.showMessageDialog(null, "An error occurred. Try again.", "Error",
+                                                    JOptionPane.ERROR_MESSAGE);
+                                        }
 
-                                if (check.equals("Y")) {
+                                        if (check.equals("Y")) {
 
-                                    writer.write("D:" + a.toString());
-                                    writer.println();
-                                    writer.flush();
+                                            writer.write("D:" + a.toString());
+                                            writer.println();
+                                            writer.flush();
 
-                                    writer.write("d:" + a.getUsername());
-                                    writer.println();
-                                    writer.flush();
+                                            writer.write("d:" + a.getUsername());
+                                            writer.println();
+                                            writer.flush();
 
-                                    a.setUsername(newUser);
+                                            a.setUsername(newUser);
 
-                                    writer.write("R:" + a.toString());
-                                    writer.println();
-                                    writer.flush();
+                                            writer.write("R:" + a.toString());
+                                            writer.println();
+                                            writer.flush();
 
-                                    writer.write("r:" + a.getUsername());
-                                    writer.println();
-                                    writer.flush();
+                                            writer.write("r:" + a.getUsername());
+                                            writer.println();
+                                            writer.flush();
 
-                                    name.setText(a.getUsername());
+                                            name.setText(a.getUsername());
+                                            break;
+                                        }
+
+                                    } while (true);
                                     break;
-                                }
 
-                            } while (true);
-                            break;
+                                case "Password":
 
-                        case "Password":
+                                    do {
+                                        String newPass = JOptionPane.showInputDialog(null, "Enter A New Password",
+                                                "Password Change", JOptionPane.QUESTION_MESSAGE);
 
-                            do {
-                                String newPass = JOptionPane.showInputDialog(null, "Enter A New Password",
-                                        "Password Change", JOptionPane.QUESTION_MESSAGE);
+                                        if (newPass != null) {
 
-                                if (newPass != null) {
+                                            writer.write("D:" + a.toString());
+                                            writer.println();
+                                            writer.flush();
 
-                                    writer.write("D:" + a.toString());
-                                    writer.println();
-                                    writer.flush();
+                                            a.setPassword(newPass);
 
-                                    a.setPassword(newPass);
+                                            writer.write("R:" + a.toString());
+                                            writer.println();
+                                            writer.flush();
+                                            break;
 
-                                    writer.write("R:" + a.toString());
-                                    writer.println();
-                                    writer.flush();
+                                        }
+
+                                    } while (true);
                                     break;
 
-                                }
-
-                            } while (true);
-                            break;
-
-                        case "Contacts":
-
-                            do {
-
-                                String[] options = {"Add", "Delete"};
-                                int result = JOptionPane.showOptionDialog(null, "Would you like to delete or add a contact?", "Contact Change",
-                                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                                        null, options, options[1]);
-
-                                if (result == JOptionPane.YES_OPTION) {
+                                case "Contacts":
 
                                     do {
 
-                                        String newCont = JOptionPane.showInputDialog(null, "Enter A New Contact (email, phones, etc)",
-                                                "Add Contact", JOptionPane.QUESTION_MESSAGE);
-                                        if (newCont != null) {
+                                        String[] options = {"Add", "Delete"};
+                                        int result = JOptionPane.showOptionDialog(null, "Would you like to delete or add a contact?", "Contact Change",
+                                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                                null, options, options[1]);
 
-                                            writer.write("D:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                                        if (result == JOptionPane.YES_OPTION) {
 
-                                            a.addContact(newCont);
+                                            do {
 
-                                            writer.write("R:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                                                String newCont = JOptionPane.showInputDialog(null, "Enter A New Contact (email, phones, etc)",
+                                                        "Add Contact", JOptionPane.QUESTION_MESSAGE);
+                                                if (newCont != null) {
 
-                                            contact.setText(a.getContacts().toString());
+                                                    writer.write("D:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
 
-                                            break;
+                                                    if (a.contacts.get(0).equals("")) {
+                                                        a.contacts.remove(0);
+                                                    }
+
+                                                    a.addContact(newCont);
+
+                                                    writer.write("R:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    contact.setText(a.getContacts().toString());
+
+                                                    break;
+                                                }
+                                            } while (true);
+
+
+                                        } else if (result == JOptionPane.NO_OPTION) {
+
+                                            do {
+
+                                                String newCont = JOptionPane.showInputDialog(null, "Enter A Contact to remove (email, phones, etc)",
+                                                        "Remove Contact", JOptionPane.QUESTION_MESSAGE);
+                                                if (newCont != null) {
+
+                                                    writer.write("D:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    a.removeContact(newCont);
+
+                                                    writer.write("R:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    contact.setText(a.getContacts().toString());
+
+                                                    break;
+                                                }
+                                            } while (true);
                                         }
+                                        break;
+
                                     } while (true);
+                                    break;
 
-
-                                } else if (result == JOptionPane.NO_OPTION) {
+                                case "Interests":
 
                                     do {
 
-                                        String newCont = JOptionPane.showInputDialog(null, "Enter A Contact to remove (email, phones, etc)",
-                                                "Remove Contact", JOptionPane.QUESTION_MESSAGE);
-                                        if (newCont != null) {
+                                        String[] options = {"Add", "Delete"};
+                                        int result = JOptionPane.showOptionDialog(null, "Would you like to delete or add an Interest?", "Interest Change",
+                                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                                null, options, options[1]);
 
-                                            writer.write("D:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                                        if (result == JOptionPane.YES_OPTION) {
 
-                                            a.removeContact(newCont);
+                                            do {
 
-                                            writer.write("R:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                                                String newCont = JOptionPane.showInputDialog(null, "Enter A New Interest",
+                                                        "Add Interest", JOptionPane.QUESTION_MESSAGE);
+                                                if (newCont != null) {
 
-                                            contact.setText(a.getContacts().toString());
+                                                    writer.write("D:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
 
-                                            break;
+                                                    if (a.likes.get(0).equals("")) {
+                                                        a.likes.remove(0);
+                                                    }
+
+                                                    a.addLike(newCont);
+
+                                                    writer.write("R:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    interests.setText(a.getLikes().toString());
+
+                                                    break;
+                                                }
+                                            } while (true);
+
+
+                                        } else if (result == JOptionPane.NO_OPTION) {
+
+                                            do {
+
+                                                String newCont = JOptionPane.showInputDialog(null, "Enter an interest to remove",
+                                                        "Remove Interest", JOptionPane.QUESTION_MESSAGE);
+                                                if (newCont != null) {
+
+                                                    writer.write("D:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    a.removeLike(newCont);
+
+                                                    writer.write("R:" + a.toString());
+                                                    writer.println();
+                                                    writer.flush();
+
+                                                    interests.setText(a.getLikes().toString());
+                                                    break;
+                                                }
+                                            } while (true);
                                         }
+                                        break;
+
                                     } while (true);
-                                }
-                                break;
+                                    break;
 
-                            } while (true);
-                            break;
+                                case "About Me":
 
-                        case "Interests":
+                                    String am = JOptionPane.showInputDialog(null, "Enter your new about me",
+                                            "About Me Change", JOptionPane.QUESTION_MESSAGE);
 
-                            do {
+                                    if (am != null) {
 
-                                String[] options = {"Add", "Delete"};
-                                int result = JOptionPane.showOptionDialog(null, "Would you like to delete or add an Interest?", "Interest Change",
-                                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                                        null, options, options[1]);
+                                        writer.write("D:" + a.toString());
+                                        writer.println();
+                                        writer.flush();
 
-                                if (result == JOptionPane.YES_OPTION) {
+                                        a.setAboutMe(am);
 
-                                    do {
+                                        writer.write("R:" + a.toString());
+                                        writer.println();
+                                        writer.flush();
 
-                                        String newCont = JOptionPane.showInputDialog(null, "Enter A New Interest",
-                                                "Add Interest", JOptionPane.QUESTION_MESSAGE);
-                                        if (newCont != null) {
+                                        abMe.setText(am);
 
-                                            writer.write("D:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                                        break;
 
-                                            a.addLike(newCont);
+                                    }
+                                    break;
 
-                                            writer.write("R:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
+                            }
+                        }
 
-                                            interests.setText(a.getLikes().toString());
-
-                                            break;
-                                        }
-                                    } while (true);
-
-
-                                } else if (result == JOptionPane.NO_OPTION) {
-
-                                    do {
-
-                                        String newCont = JOptionPane.showInputDialog(null, "Enter an interest to remove",
-                                                "Remove Interest", JOptionPane.QUESTION_MESSAGE);
-                                        if (newCont != null) {
-
-                                            writer.write("D:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
-
-                                            a.removeLike(newCont);
-
-                                            writer.write("R:" + a.toString());
-                                            writer.println();
-                                            writer.flush();
-
-                                            interests.setText(a.getLikes().toString());
-                                            break;
-                                        }
-                                    } while (true);
-                                }
-                                break;
-
-                            } while (true);
-                            break;
                     }
-                }
 
-                }
+                });
 
-            });
-        
-        del.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                del.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
 
-                    int delete = JOptionPane.showConfirmDialog(null,
-                            "Are you sure you like to delete your account?", "Delete?", JOptionPane.YES_NO_OPTION);
+                        int delete = JOptionPane.showConfirmDialog(null,
+                                "Are you sure you like to delete your account?", "Delete?", JOptionPane.YES_NO_OPTION);
 
-                    if (delete == JOptionPane.YES_OPTION) {
+                        if (delete == JOptionPane.YES_OPTION) {
 
-                        writer.write("D:" + a.toString());
-                        writer.println();
-                        writer.flush();
-
-                        writer.write("d:" + a.getUsername());
-                        writer.println();
-                        writer.flush();
-
-                        frame.dispose();
-                    }
-
-                }
-            });
-
-        fList.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-                ArrayList<String> l = a.getFriendsList();
-                ArrayList<JButton> b = new ArrayList<>();
-
-                JFrame f = new JFrame("Profile");
-                Container con = f.getContentPane();
-
-                con.setLayout(new BorderLayout());
-                client = new Client();
-                con.add(client, BorderLayout.CENTER);
-
-                f.setSize(600, 400);
-                f.setLocationRelativeTo(null);
-                f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                f.setVisible(true);
-
-                JPanel panel = new JPanel();
-
-                for (int i = 0; i < l.size(); i++) {
-
-                    JButton j = new JButton(l.get(i));
-                    b.add(j);
-                }
-
-                for (int i = 0; i < b.size(); i++) {
-
-                    panel.add(b.get(i));
-
-                }
-                con.add(panel, BorderLayout.CENTER);
-
-                for (int i = 0; i < b.size(); i++) {
-
-                    String s = l.get(i);
-
-                    b.get(i).addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                            f.dispose();
-                            change.setVisible(false);
-                            del.setVisible(false);
-
-                            writer.write("G:" + s);
+                            writer.write("D:" + a.toString());
                             writer.println();
                             writer.flush();
 
-                            String account = "";
+                            writer.write("d:" + a.getUsername());
+                            writer.println();
+                            writer.flush();
 
-                            try {
-                                account = reader.readLine();
-                            } catch (IOException ioException) {
+                            frame.dispose();
+                        }
+
+                    }
+                });
+
+                fList.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+
+                        frame.setVisible(false);
+
+                        ArrayList<String> l = a.getFriendsList();
+                        ArrayList<JButton> b = new ArrayList<>();
+
+                        if (l.size() != 0) {
+
+                            JFrame f = new JFrame("Profile");
+                            Container con = f.getContentPane();
+
+                            con.setLayout(new BorderLayout());
+                            client = new Client();
+                            con.add(client, BorderLayout.CENTER);
+
+                            f.setSize(600, 400);
+                            f.setLocationRelativeTo(null);
+                            f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            f.setVisible(true);
+
+                            JPanel panel = new JPanel();
+
+                            for (int i = 0; i < l.size(); i++) {
+
+                                JButton j = new JButton(l.get(i));
+                                b.add(j);
                             }
 
-                            String temp = account.substring(2);
-                            temp = temp.substring(temp.indexOf(",") + 1);
+                            for (int i = 0; i < b.size(); i++) {
 
-                            String p = temp.substring(0, temp.indexOf(","));
+                                panel.add(b.get(i));
 
-                            temp = temp.substring(temp.indexOf(",") + 1);
+                            }
+                            con.add(panel, BorderLayout.CENTER);
 
-                            String cont = temp.substring(temp.indexOf("[") + 1, temp.indexOf("]"));
-                            String[] C = cont.split(",");
-                            ArrayList<String> c = new ArrayList<>();
+                            for (int i = 0; i < b.size(); i++) {
 
-                            for (String t : C) {
-                                c.add(t);
+                                String s = l.get(i);
+
+                                b.get(i).addActionListener(new ActionListener() {
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+
+                                        frame.setVisible(true);
+
+                                        f.dispose();
+                                        change.setVisible(false);
+                                        del.setVisible(false);
+
+                                        writer.write("G:" + s);
+                                        writer.println();
+                                        writer.flush();
+
+                                        String account = "";
+
+                                        try {
+                                            account = reader.readLine();
+                                        } catch (IOException ioException) {
+                                        }
+
+                                        String temp = account.substring(2);
+                                        temp = temp.substring(temp.indexOf(",") + 1);
+
+                                        String p = temp.substring(0, temp.indexOf(","));
+
+                                        temp = temp.substring(temp.indexOf(",") + 1);
+
+                                        String cont = temp.substring(temp.indexOf("[") + 1, temp.indexOf("]"));
+                                        String[] C = cont.split(",");
+                                        ArrayList<String> c = new ArrayList<>();
+
+                                        for (String t : C) {
+                                            c.add(t);
+                                        }
+
+                                        temp = temp.substring(temp.indexOf("]") + 2);
+                                        String fren = temp.substring(1, temp.indexOf("]"));
+                                        String[] F = fren.split(",");
+                                        ArrayList<String> f = new ArrayList<>();
+
+                                        for (String t : F) {
+                                            f.add(t);
+                                        }
+
+                                        temp = temp.substring(temp.indexOf("]") + 2);
+                                        String lik = temp.substring(1, temp.indexOf("]"));
+                                        String[] L = lik.split(",");
+                                        ArrayList<String> l = new ArrayList<>();
+
+                                        for (String t : L) {
+                                            l.add(t);
+                                        }
+
+                                        temp = temp.substring(temp.indexOf("]") + 1);
+                                        String ab = temp.substring(0, temp.indexOf("[") - 1);
+
+                                        temp = temp.substring(temp.indexOf("[") + 1);
+                                        String fq = temp.substring(0, temp.indexOf("]"));
+                                        String[] Q = fq.split(",");
+                                        ArrayList<String> q = new ArrayList<>();
+
+                                        for (String t : Q) {
+                                            q.add(t);
+                                        }
+
+                                        if (ab.equals(",")) {
+                                            ab = "";
+                                        }
+
+                                        name.setText(s);
+                                        contact.setText(c.toString());
+                                        interests.setText(l.toString());
+                                        abMe.setText(ab);
+
+                                        exit.setVisible(true);
+
+
+                                        exit.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+
+                                                name.setText(a.getUsername());
+                                                contact.setText(a.getContacts().toString());
+                                                interests.setText(a.getLikes().toString());
+                                                abMe.setText(a.getAboutMe());
+                                                change.setVisible(true);
+                                                del.setVisible(true);
+                                                exit.setVisible(false);
+
+                                            }
+                                        });
+
+                                    }
+                                });
+
                             }
 
-                            temp = temp.substring(temp.indexOf("]") + 2);
-                            String fren = temp.substring(1, temp.indexOf("]"));
-                            String[] F = fren.split(",");
-                            ArrayList<String> f = new ArrayList<>();
+                        } else {
 
-                            for (String t : F) {
-                                f.add(t);
-                            }
+                            JOptionPane.showMessageDialog(null, "You have no friends :(",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
 
-                            temp = temp.substring(temp.indexOf("]") + 2);
-                            String lik = temp.substring(1, temp.indexOf("]"));
-                            String[] L = lik.split(",");
-                            ArrayList<String> l = new ArrayList<>();
-
-                            for (String t : L) {
-                                l.add(t);
-                            }
-
-                            temp = temp.substring(temp.indexOf("]") + 1);
-                            String ab = temp.substring(0, temp.indexOf("[") - 1);
-
-                            temp = temp.substring(temp.indexOf("[") + 1);
-                            String fq = temp.substring(0, temp.indexOf("]"));
-                            String[] Q = fq.split(",");
-                            ArrayList<String> q = new ArrayList<>();
-
-                            for (String t : Q) {
-                                q.add(t);
-                            }
-
-                            if (ab.equals(",")) {
-                                ab = "";
-                            }
-
-                            name.setText(s);
-                            contact.setText(c.toString());
-                            interests.setText(l.toString());
-                            abMe.setText(ab);
-
-                            exit.setVisible(true);
-
-
-                            exit.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-
-                                    name.setText(a.getUsername());
-                                    contact.setText(a.getContacts().toString());
-                                    interests.setText(a.getLikes().toString());
-                                    abMe.setText(a.getAboutMe());
-                                    change.setVisible(true);
-                                    del.setVisible(true);
-                                    exit.setVisible(false);
-
-                                }
-                            });
+                            frame.setVisible(true);
 
                         }
-                    });
+                    }
 
-                }
+                });
 
-            }
+                frame.setVisible(true);
 
-        });
+                ie.addActionListener(new ActionListener() {
+                @Override
+                    public void actionPerformed(ActionEvent e) {
 
-        frame.setVisible(true);
+                        String[] options = {"Import", "Export"};
+                        int result = JOptionPane.showOptionDialog(null, "Would you like to import or export a profile?", "Import or Export?",
+                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                null, options, options[1]);
 
+                        if (result == JOptionPane.YES_OPTION) {
+
+                            String filename;
+                            boolean breaker = false;
+
+                            filename = JOptionPane.showInputDialog(null, "Enter the name of the file",
+                                    "Import", JOptionPane.QUESTION_MESSAGE);
+
+                            if (filename == null) {
+                                breaker = true;
+                            }
+
+                            if (!breaker) {
+
+                                writer.write("I:" + filename);
+                                writer.println();
+                                writer.flush();
+
+                                JOptionPane.showMessageDialog(null, "The File has been imported!",
+                                        "Import Successful", JOptionPane.INFORMATION_MESSAGE);
+                            }
+
+                        } else if (result == JOptionPane.NO_OPTION) {
+
+                            String filename;
+                            boolean breaker = false;
+
+                            filename = JOptionPane.showInputDialog(null, "Enter the name of the file you would like to export to",
+                                "Export", JOptionPane.QUESTION_MESSAGE);
+
+                            if (filename == null) {
+                                breaker = true;
+                            }
+
+                            if (!breaker) {
+
+                                writer.write("E:" + filename + "," + a.toString());
+                                writer.println();
+                                writer.flush();
+
+                                JOptionPane.showMessageDialog(null, "The File has been Exported!",
+                                        "Export Successful", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        }
+
+                    }
+                });
+
+
+        }
     }
 }
-
-//end of program
