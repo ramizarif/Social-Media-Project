@@ -246,19 +246,19 @@ public class NewTest extends JComponent {
                     frame.setLocationRelativeTo(null);
                     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-                    name = new JLabel(a.getUsername());
+                    name = new JLabel("<html><b>" + a.getUsername() + "</b></html>");
                     interests = new JTextArea(a.getLikes().toString());
                     abMe = new JTextArea(a.getAboutMe());
-                    contact = new JLabel(a.getContacts().toString());
+                    contact = new JLabel("<html><b>" + a.getContacts().toString() + "</b></html>");
                     fList = new JButton("Friends List");
                     change = new JButton("Change information");
                     del = new JButton("Delete Profile");
                     JButton exit = new JButton("My Profile");
                     JButton ie = new JButton("Import/Export");
-                    JLabel settings = new JLabel("Settings:");
-                    JLabel iTitle = new JLabel("My Interests:");
-                    JLabel aTitle = new JLabel("About Me:");
-                    JLabel pic = new JLabel("");
+                    JLabel settings = new JLabel("<html><b>Settings:</b></html>");
+                    JLabel iTitle = new JLabel("<html><b>My Interests:</b></html>");
+                    JLabel aTitle = new JLabel("<html><b>About Me:</b></html>");
+                    JLabel pic = new JLabel("<html><b></b></html>");
 
                     if (a.getPicName().length() > 0) {
                         pic.setIcon(createPicture(a.getPicName()));
