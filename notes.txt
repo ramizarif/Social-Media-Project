@@ -1,0 +1,2 @@
+String[] split2 = searchedAccString.split(",");
+String pict = split2[2];

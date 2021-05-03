@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -16,10 +17,23 @@ public class NewTest extends JComponent {
     static JTextArea abMe;
     static JTextArea interests;
     static JLabel contact;
+    static JLabel pic;
     static JButton fList;
     static JButton change;
     static JButton del;
-    static JLabel pic;
+    static JButton search; 
+    static JButton checkFriendRequests;
+    static JButton privacy;
+
+    static JButton home; 
+    static JButton addFriend;
+
+    //will allow the searched profile buttons to exist before used
+    static boolean homeConditional;
+    static boolean addFriendConditional;  
+    static boolean privAdded; 
+
+
 
     static Client client;
 
@@ -158,7 +172,6 @@ public class NewTest extends JComponent {
                         ab = "";
                     }
 
-
                     a = new Account(username, password, pics, c, f, l, ab, q);
                     break;
 
@@ -174,11 +187,12 @@ public class NewTest extends JComponent {
 
             //Create a new account here
             String newUser;
-            String newPass;
+            String newPass = null;
+            ender = false;
 
             do {
                 newUser = JOptionPane.showInputDialog(null, "Enter A Username",
-                        "Login", JOptionPane.QUESTION_MESSAGE);
+                        "Create New Account", JOptionPane.QUESTION_MESSAGE);
 
                 writer.write("C:" + newUser);
                 writer.println();
@@ -190,23 +204,48 @@ public class NewTest extends JComponent {
                     break;
                 }
 
+                if(newUser == null) {
+                    gui = false;
+                    ender = true;
+                    break;
+                }
+
             } while (true);
 
             do {
+                if(ender) {
+                    break;
+                }
                 newPass = JOptionPane.showInputDialog(null, "Enter A Password",
                         "Login", JOptionPane.QUESTION_MESSAGE);
 
-            } while ((newPass == null) || (newPass.isBlank()));
+                if (newPass == null) {
+                    gui = false;
+                    ender = true;
+                    break;
+                }
+                if (newPass.isBlank()) {
+                } else {
+                    break;
+                }
 
-            a = new Account(newUser, newPass);
+            } while (true);
 
-            writer.write("N:" + a.toString());
-            writer.println();
-            writer.flush();
+            if (!ender) {
 
+                a = new Account(newUser, newPass);
+
+                writer.write("N:" + a.toString());
+                writer.println();
+                writer.flush();
+
+            } else {
+
+                a = new Account("break", "break");
+            }
         } else {
             gui = false;
-            a = null;
+            a = new Account("break", "break");
         }
 
         //Show profile in complex gui with loop, maybe a run method
@@ -228,6 +267,9 @@ public class NewTest extends JComponent {
                     fList = new JButton("Friends List");
                     change = new JButton("Change information");
                     del = new JButton("Delete Profile");
+                    checkFriendRequests = new JButton("Friend Requests");
+                    search = new JButton("Search Profiles"); 
+                    privacy = new JButton("Privacy Settings");
                     JButton exit = new JButton("My Profile");
                     JButton ie = new JButton("Import/Export");
                     JLabel settings = new JLabel("Settings:");
@@ -272,6 +314,9 @@ public class NewTest extends JComponent {
                     dpanel.add(ie);
                     dpanel.add(fList);
                     dpanel.add(change);
+                    dpanel.add(checkFriendRequests);
+                    dpanel.add(search);  
+                    dpanel.add(privacy);
                     dpanel.add(del);
                     dpanel.add(exit);
                     exit.setVisible(false);
@@ -448,8 +493,10 @@ public class NewTest extends JComponent {
                                                         writer.println();
                                                         writer.flush();
 
-                                                        if (a.likes.get(0).equals("")) {
-                                                            a.likes.remove(0);
+                                                        if (a.likes.size() > 0) {
+                                                            if (a.likes.get(0).equals("")) {
+                                                                a.likes.remove(0);
+                                                            }
                                                         }
 
                                                         a.addLike(newCont);
@@ -471,7 +518,18 @@ public class NewTest extends JComponent {
 
                                                     String newCont = JOptionPane.showInputDialog(null, "Enter an interest to remove",
                                                             "Remove Interest", JOptionPane.QUESTION_MESSAGE);
-                                                    if (newCont != null) {
+
+                                                    boolean go;
+
+                                                    if (a.likes.contains(newCont)) {
+                                                        go = true;
+                                                    } else {
+                                                        JOptionPane.showMessageDialog(null, "Interest Not Found",
+                                                                "Error", JOptionPane.ERROR_MESSAGE);
+                                                        break;
+                                                    }
+
+                                                    if (go) {
 
                                                         writer.write("D:" + a.toString());
                                                         writer.println();
@@ -547,6 +605,39 @@ public class NewTest extends JComponent {
 
                     });
 
+                    privacy.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+    
+                            boolean priv = false;
+    
+                            do {
+    
+                                int privDec = JOptionPane.showConfirmDialog(null, "Go Private? (Only Friends can view your account.)", "Privacy Settigns", JOptionPane.YES_NO_OPTION);
+                                if (privDec == JOptionPane.YES_OPTION) {
+                                    try {
+                                        a.makePrivate(a.getUsername());
+                                    } catch (FileNotFoundException e1) {
+                                        // TODO Auto-generated catch block
+                                        e1.printStackTrace();
+                                    } 
+                                } else {
+                                    try {
+                                        a.makePublic(a.getUsername());
+                                    } catch (IOException e1) {
+                                        // TODO Auto-generated catch block
+                                        e1.printStackTrace();
+                                    }
+                                }
+                                break; 
+    
+                            } while (true);
+    
+                            
+                            
+    
+                        }
+                    });
+
                     del.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
 
@@ -566,6 +657,175 @@ public class NewTest extends JComponent {
                                 frame.dispose();
                             }
 
+                        }
+                    });
+
+                    checkFriendRequests.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            String[] potentialFriends = new String [a.getFriendReqs().size()]; 
+                            for (int i = 0; i < a.getFriendReqs().size(); i++) {
+                                potentialFriends[i] = a.getFriendReqs().get(i);
+                            }
+    
+                            ArrayList<String> tempList = new ArrayList<String>();
+                            for (int m = 0; m < potentialFriends.length; m++) {
+                                if (potentialFriends[m].equals("")) {
+    
+                                } else {
+                                    tempList.add(potentialFriends[m]);
+                                }
+                            }
+    
+                            String[] potFriends = new String [tempList.size()];
+                                for (int p = 0; p < potFriends.length; p++) {
+                                    potFriends[p] = tempList.get(p);
+                                }
+    
+                            if (potFriends.length < 1) {
+                                do { 
+                                    JOptionPane.showMessageDialog(null, "No Friend Requests", "Friend Requests", JOptionPane.YES_OPTION);
+                                    break; 
+                                } while (true);
+                            } else {
+    
+                                String pendingFriends = (String) JOptionPane.showInputDialog(null, "Which requests would you like to accept/decline?",
+                            "Friend Requests", JOptionPane.QUESTION_MESSAGE, null, potFriends, potFriends[0]);
+            
+                                if (pendingFriends != null || pendingFriends !=  "") {
+                                    String newFriendInfo = ""; 
+                                    boolean go = false; 
+                                    do {
+                
+                                        int friendChoice = JOptionPane.showConfirmDialog(null, "Would you like to be friends with " + pendingFriends + "?", 
+                                        "Friend Requests", JOptionPane.YES_NO_OPTION);
+                
+                                        if (friendChoice == JOptionPane.YES_OPTION) {
+                                            //add friend by: 
+                                                //removing them from friend requests
+                                                //adding them to friend requests list and vice versa
+                                                //
+                                            
+                                            
+    
+                                            a.addFriend(pendingFriends);
+                                            a.removeFriendReq(pendingFriends); 
+                                            //construct the account for pending friends 
+                                            writer.write("Z:" + pendingFriends);
+                                            writer.println();
+                                            writer.flush();
+                                            newFriendInfo = "";
+                                            go = true;
+                                            break;
+                
+                                        } else if (friendChoice == JOptionPane.NO_OPTION) {
+                                            a.removeFriendReq(pendingFriends);
+                                            //delete name from file friend request
+                                            writer.write("s:" + a.getUsername() + ":" + pendingFriends);
+                                            writer.println();
+                                            writer.flush();
+                                            break; 
+                                        }
+                
+                                    } while (true);
+    
+                                    if (go) {
+    
+                                        System.out.println("Getting here");
+                                        try {
+                                            newFriendInfo = reader.readLine();
+                    
+                                        } catch (Exception f) {
+                                            System.out.println(f.getStackTrace());
+                                        }
+                    
+                                        String searchedAccString = newFriendInfo.substring(2);
+        
+                                        System.out.println("This works");
+        
+                                        //create code to get the actual lists of interests and conts
+                                        
+                                        String[] searchedAccSplit = searchedAccString.split("]");
+            
+                                        //acc name
+                                        String searchedName = searchedAccSplit[0].substring(0, searchedAccSplit[0].indexOf(","));
+            
+                                        //acc contacts
+                                        ArrayList<String> searchedContacts = new ArrayList<String>();
+                                        String sc = searchedAccSplit[0].substring(searchedAccSplit[0].indexOf("["));
+                                        if (sc.indexOf(",") != -1) {
+                                            String[] scSplit = sc.split(",");
+                                            for (int z = 0; z < scSplit.length; z++) {
+                                                searchedContacts.add(scSplit[z]);
+                                            }
+                                        } else if (sc.indexOf(",") == -1 && sc.equals("") == false) {
+                                            searchedContacts.add(sc);
+                                        }
+            
+                                        //friends list
+                                        ArrayList<String> searchedFriends = new ArrayList<String>();
+                                        String sf = searchedAccSplit[1].substring(searchedAccSplit[1].indexOf("[") + 1);
+                                        if (sf.indexOf(",") != -1) {
+                                            String[] sfSplit = sf.split(",");
+                                            for (int j = 0; j < sfSplit.length; j++) {
+                                                searchedFriends.add(sfSplit[j]);
+                                            }
+                                        } else if (sf.indexOf(",") == -1 && sf.equals("") == false) {
+                                            searchedFriends.add(sf); 
+                                        }
+            
+                                        //acc interests and likes
+                                        ArrayList<String> searchedInterests = new ArrayList<String>();
+                                        String si = searchedAccSplit[2].substring(searchedAccSplit[2].indexOf("[") + 1);
+                                        if (si.indexOf(",") != -1) {
+                                            String[] siSplit = si.split(",");
+                                            for (int n = 0; n < siSplit.length; n++) {
+                                                searchedInterests.add(siSplit[n]);
+                                            }
+                                        } else if (si.indexOf(",") == -1 && si.equals("") == false) {
+                                            searchedInterests.add(si);
+                                        }
+            
+                                        //about me
+                                        String searchedAboutMe = "";
+                                        String sa = searchedAccSplit[3];
+                                        String saInterest = sa.substring(sa.indexOf(","), sa.indexOf("["));
+                                        String sam; 
+                                        if (saInterest.equals(",,") == false) {
+                                            sam = sa.substring(sa.indexOf(",") + 1, sa.lastIndexOf(","));
+                                        }
+                                        sam = searchedAboutMe; 
+            
+                                        //searched acc friend req list
+                                        ArrayList<String> searchedFriendRequests = new ArrayList<String>();
+                                        String fr = searchedAccSplit[3].substring(searchedAccSplit[3].indexOf("[")+1);
+                                        if (fr.indexOf(",") != -1) {
+                                            String[] frSplit = fr.split(",");
+                                            for (int b = 0; b < frSplit.length; b++) {
+                                                searchedFriendRequests.add(frSplit[b]);
+                                            }
+                                        } else if (fr.indexOf(",") == 1 && fr.equals("") == false) {
+                                            searchedFriendRequests.add(fr);
+                                        }
+                                        
+
+                                        String[] split2 = searchedAccString.split(",");
+                                        String pict = split2[2];
+
+                                        Account addedFriend = new Account(searchedName, "password", pict, searchedContacts, searchedFriends, searchedInterests, searchedAboutMe, searchedFriendRequests);
+                                        addedFriend.getFriendsList().add(a.getUsername()); 
+        
+                                        //have to write their new found friendship in the acc.txt file and delete their friend request
+                                        String user = a.getUsername(); 
+                                        String userFriend = addedFriend.getUsername(); 
+                                        writer.write("Q:" + user + ":" + userFriend);
+                                        writer.println();
+                                        writer.flush();
+                                    } 
+                                    
+                    
+                                    }
+                                
+                            }
                         }
                     });
 
@@ -621,6 +881,10 @@ public class NewTest extends JComponent {
                                             del.setVisible(false);
                                             ie.setVisible(false);
                                             fList.setVisible(false);
+                                            search.setVisible(false);
+                                            privacy.setVisible(false);
+                                            checkFriendRequests.setVisible(false);
+
 
                                             writer.write("G:" + s);
                                             writer.println();
@@ -703,6 +967,9 @@ public class NewTest extends JComponent {
                                                     ie.setVisible(true);
                                                     fList.setVisible(true);
                                                     exit.setVisible(false);
+                                                    search.setVisible(true);
+                                                    privacy.setVisible(true);
+                                                    checkFriendRequests.setVisible(true);
 
                                                 }
                                             });
@@ -725,6 +992,293 @@ public class NewTest extends JComponent {
                     });
 
                     frame.setVisible(true);
+
+                    search.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            String checkType; 
+                            do {    
+                                String searchName =  JOptionPane.showInputDialog(null, "Search Profile",
+                                "Search", JOptionPane.QUESTION_MESSAGE);
+                                String sendServer = ("Z:" + searchName);
+                                writer.write(sendServer);
+                                writer.println();
+                                writer.flush();  
+                                checkType = "";
+            
+                                break; 
+                            
+                            } while(true);
+            
+                            
+                            try {
+                                checkType = reader.readLine();
+                            } catch (IOException ioException) {
+                                JOptionPane.showMessageDialog(null, "An error occurred. Try again.", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+            
+            
+                                String checkCommand = checkType.substring(0,2);
+                                String searchedAccString = checkType.substring(2);
+    
+                                //create code to get the actual lists of interests and conts
+                                
+                                String[] searchedAccSplit = searchedAccString.split("]");
+    
+                                //acc name
+                                String searchedName = searchedAccSplit[0].substring(0, searchedAccSplit[0].indexOf(","));
+    
+                                //acc contacts
+                                ArrayList<String> searchedContacts = new ArrayList<String>();
+                                String sc = searchedAccSplit[0].substring(searchedAccSplit[0].indexOf("["));
+                                if (sc.indexOf(",") != -1) {
+                                    String[] scSplit = sc.split(",");
+                                    for (int z = 0; z < scSplit.length; z++) {
+                                        searchedContacts.add(scSplit[z]);
+                                    }
+                                } else if (sc.indexOf(",") == -1 && sc.equals("") == false) {
+                                    searchedContacts.add(sc);
+                                }
+    
+                                //friends list
+                                ArrayList<String> searchedFriends = new ArrayList<String>();
+                                String sf = searchedAccSplit[1].substring(searchedAccSplit[1].indexOf("[") + 1);
+                                if (sf.indexOf(",") != -1) {
+                                    String[] sfSplit = sf.split(",");
+                                    for (int j = 0; j < sfSplit.length; j++) {
+                                        searchedFriends.add(sfSplit[j]);
+                                    }
+                                } else if (sf.indexOf(",") == -1 && sf.equals("") == false) {
+                                    searchedFriends.add(sf); 
+                                }
+    
+                                //acc interests and likes
+                                ArrayList<String> searchedInterests = new ArrayList<String>();
+                                String si = searchedAccSplit[2].substring(searchedAccSplit[2].indexOf("[") + 1);
+                                if (si.indexOf(",") != -1) {
+                                    String[] siSplit = si.split(",");
+                                    for (int n = 0; n < siSplit.length; n++) {
+                                        searchedInterests.add(siSplit[n]);
+                                    }
+                                } else if (si.indexOf(",") == -1 && si.equals("") == false) {
+                                    searchedInterests.add(si);
+                                }
+    
+                                //about me
+                                String searchedAboutMe = "";
+                                String sa = searchedAccSplit[3];
+                                String saInterest = sa.substring(sa.indexOf(","), sa.indexOf("["));
+                                String sam; 
+                                if (saInterest.equals(",,") == false) {
+                                    sam = sa.substring(sa.indexOf(",") + 1, sa.lastIndexOf(","));
+                                }
+                                sam = searchedAboutMe; 
+    
+                                //searched acc friend req list
+                                ArrayList<String> searchedFriendRequests = new ArrayList<String>();
+                                String fr = searchedAccSplit[3].substring(searchedAccSplit[3].indexOf("[")+1);
+                                if (fr.indexOf(",") != -1) {
+                                    String[] frSplit = fr.split(",");
+                                    for (int b = 0; b < frSplit.length; b++) {
+                                        searchedFriendRequests.add(frSplit[b]);
+                                    }
+                                } else if (fr.indexOf(",") == 1 && fr.equals("") == false) {
+                                    searchedFriendRequests.add(fr);
+                                }
+                                
+                                String[] split2 = searchedAccString.split(",");
+                                String pict = split2[2];
+                                Account searchedAcc = new Account(searchedName, "password", pict, searchedContacts, searchedFriends, searchedInterests, searchedAboutMe, searchedFriendRequests);
+                                try {
+                                    System.out.println(searchedAcc.isPrivate(searchedAcc) + "isfriend");
+                                } catch (IOException e2) {
+                                    // TODO Auto-generated catch block
+                                    e2.printStackTrace();
+                                } 
+                                //will check if the two accs are friends
+                                //this isnt working 
+                                    //logic? or friends list not updating?
+                                //searchedAcc.getFriendsList().add("tax7");
+                                boolean isFriend = a.isFriend(searchedAcc);
+                                if (isFriend) {
+                                    //show the account without the add friend button
+                                        //add back to home button
+                                        System.out.println(isFriend + a.getUsername() + searchedAcc.getUsername());
+            
+                                        //setting the text for all the jlabels
+                                        name.setText(searchedAcc.getUsername());
+                                        abMe.setText(searchedAcc.getAboutMe());
+                                        interests.setText(searchedAcc.getLikes().toString());
+                                        contact.setText(searchedAcc.getContacts().toString());
+                                        
+                                        //make all login profile jbuttons invisible
+                                        fList.setVisible(false);
+                                        change.setVisible(false);
+                                        search.setVisible(false);
+                                        settings.setVisible(false);
+                                        ie.setVisible(false);
+                                        del.setVisible(false);
+                                        privacy.setVisible(false);
+                                        checkFriendRequests.setVisible(false);
+            
+                                        //create new jlabels
+                                        home = new JButton("Home");
+            
+                                        //JPanel bottom = new JPanel();
+                                        //dpanel.add(otherFriendsList);
+                                        dpanel.add(home);
+                                        frame.add(dpanel); 
+                                        
+                                        //otherFriendsList.setVisible(true);
+                                        home.setVisible(true); 
+            
+                                        homeConditional = true;
+            
+                                        
+            
+                                } else
+                                    try {
+                                        if (isFriend == false && searchedAcc.isPrivate(searchedAcc) == false) {
+                                            System.out.println("what the: " + searchedAcc.isPrivate(searchedAcc));
+                                            //show the account with the add friend button, replace search
+                                                //add back to home button
+                                                name.setText(searchedAcc.getUsername());
+                                                abMe.setText(searchedAcc.getAboutMe());
+                                                interests.setText(searchedAcc.getLikes().toString());
+                                                contact.setText(searchedAcc.getContacts().toString());
+                                                
+                                                //make all login profile jbuttons invisible
+                                                fList.setVisible(false);
+                                                change.setVisible(false);
+                                                search.setVisible(false);
+                                                settings.setVisible(false);
+                                                ie.setVisible(false);
+                                                del.setVisible(false); 
+                                                privacy.setVisible(false);
+    
+                                                
+                                                checkFriendRequests.setVisible(false);
+          
+                                                //create new jlabels
+                                                home = new JButton("Home");
+                                                addFriend = new JButton("Add Friend");
+          
+                                                //JPanel bottom = new JPanel();
+                                                //dpanel.add(otherFriendsList);
+                                                dpanel.add(home);
+                                                dpanel.add(addFriend); 
+                                                frame.add(dpanel); 
+                                                
+                                                //otherFriendsList.setVisible(true);
+                                                home.setVisible(true); 
+                                                addFriendConditional = true; 
+                                                if (addFriendConditional) {
+                                                    addFriend.setVisible(true);
+                                                }
+                                                 
+          
+                                                homeConditional = true;
+                                                 
+                                            
+                                        } else
+                                            try {
+                                                if (isFriend == false && searchedAcc.isPrivate(searchedAcc) == true) {
+                                                    int addOrNo; 
+                                                    System.out.println("LEts fucking go");
+                                                    //ask if they want to add this private account
+                                                    do {
+                                                        addOrNo = JOptionPane.showConfirmDialog(null, "This account is private. Send Friend Request?", "Private Account", JOptionPane.YES_NO_OPTION);
+    
+                                                        break;
+                                                    } while (true);
+    
+                                                    if (addOrNo == JOptionPane.YES_OPTION) {
+                                                        privAdded = true; 
+                                                        addFriendConditional = true; 
+                                                    }
+    
+                                                }
+                                            } catch (IOException e1) {
+                                                // TODO Auto-generated catch block
+                                                e1.printStackTrace();
+                                            }
+                                    } catch (HeadlessException | IOException e1) {
+                                        // TODO Auto-generated catch block
+                                        e1.printStackTrace();
+                                    }
+            
+                            if (homeConditional) {
+                                home.addActionListener(new ActionListener() {
+                                    public void actionPerformed(ActionEvent e) {
+                                        
+                                        //set all text back to profile information
+                                        name.setText(a.getUsername());
+                                        abMe.setText(a.getAboutMe());
+                                        interests.setText(a.getLikes().toString());
+                                        contact.setText(a.getContacts().toString());
+                    
+                                        home.setVisible(false);
+    
+                                        if (addFriendConditional) {
+                                            addFriend.setVisible(false);
+                                        }
+                                       
+                                        //otherFriendsList.setVisible(false);
+                    
+                                        //profile buttons become visible again
+                                        fList.setVisible(true);
+                                        change.setVisible(true);
+                                        search.setVisible(true);
+                                        checkFriendRequests.setVisible(true);
+                                        settings.setVisible(true);
+                                        ie.setVisible(true);
+                                        del.setVisible(true);
+                                        privacy.setVisible(true);
+                    
+                                        homeConditional = false;
+                            
+                                        }
+                                    });
+                            }
+    
+                        if (privAdded) {
+                            boolean x = true;
+                            if (x) {
+                                searchedAcc.addFriendReq(a.getUsername());
+                                JOptionPane.showConfirmDialog(null, "Friend Request Sent!", "Friend Request", JOptionPane.OK_CANCEL_OPTION);
+                                writer.write("K:"+a.getUsername()+":"+searchedAcc.getUsername());
+                                writer.println();
+                                writer.flush();
+                                //addFriendConditional = false;
+                            }
+                        }
+                            
+                        //friend request stuff here
+                        if (addFriendConditional) {
+                            addFriend.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    boolean x = true; 
+                                    for (int i = 0; i < searchedAcc.getFriendReqs().size(); i++) {
+                                        if (a.getUsername() == searchedAcc.getFriendReqs().get(i)) {
+                                            x = false;
+                                            JOptionPane.showConfirmDialog(null, "Friend Request Pending...", "Friend Request", JOptionPane.OK_CANCEL_OPTION); 
+                                        }
+                                    }
+                                    if (x) {
+                                        searchedAcc.addFriendReq(a.getUsername());
+                                        JOptionPane.showConfirmDialog(null, "Friend Request Sent!", "Friend Request", JOptionPane.OK_CANCEL_OPTION);
+                                        writer.write("K:"+a.getUsername()+":"+searchedAcc.getUsername());
+                                        writer.println();
+                                        writer.flush();
+                                    }
+                                   
+                                }
+                            });
+                        }
+            
+            
+                        }
+                    });
 
                     ie.addActionListener(new ActionListener() {
                         @Override
