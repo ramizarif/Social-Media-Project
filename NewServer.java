@@ -287,6 +287,8 @@ public class NewServer implements Runnable {
         boolean y = File.delete();
         boolean x = newFile.renameTo(new File(filename));
 
+        System.out.println(y + " " + x);
+
         bfr.close();
         pw.close();
 
