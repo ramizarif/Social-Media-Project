@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class NewServer implements Runnable {
 
@@ -225,6 +226,150 @@ public class NewServer implements Runnable {
                             break;
                         }
 
+                        case "Z:":
+                        String searchedName = command.substring(2);
+                        //System.out.println(searchedName); 
+                        ArrayList<String> empty = new ArrayList<>(); 
+                        String accLines = abfr.readLine(); 
+                        while (accLines != null) { 
+                            String[] accSplit = accLines.split(",");
+                            String accName = accSplit[0];
+                            if (accName.equals(searchedName)) {
+                                writer.write("N:" + accLines);
+                                writer.println();
+                                writer.flush();
+                                empty.add("a");
+                                break; 
+                            }
+                            accLines = abfr.readLine();
+                        }
+                        //no results
+                        String noResults = "No Results";
+                        if (empty.size() < 1) {
+                            writer.write("I:" + noResults);
+                            writer.println();
+                            writer.flush(); 
+                        }
+    
+                        break;
+    
+                        case "K:":
+                            
+                            //split, find searched acc line, add a to fq lsit
+                            String[] typeSplit = command.split(":");
+                            String aName = typeSplit[1];
+                            String bName = typeSplit[2];
+                            String eachLine = abfr.readLine();
+                            while (eachLine != null) {
+                                String[] accSplit = eachLine.split(",");
+                                String accName = accSplit[0];
+                                if (accName.equals(bName)) {
+                                    //b's line is found - add a's username into the last brackets
+                                    //create a new line that will be added to the txt and delete the old one before 
+                                    int startIndex = eachLine.lastIndexOf("[");
+                                    String newFrLine = insertString(eachLine, startIndex, aName + ",");
+                                    delete("accounts.txt", eachLine); 
+                                    delete("usernames.txt", bName); 
+                                    upw.println(bName);
+                                    upw.flush();
+                                    apw.println(newFrLine); 
+                                    apw.flush();
+                                    System.out.println(newFrLine); 
+                                    break; 
+                                    
+                                }
+                                eachLine = abfr.readLine();
+                            }
+    
+                            break;
+    
+                        case "Q:": 
+                            //have to do the same thing as K but in the friends list
+                            //Q:dom:ram
+                            typeSplit = command.split(":");
+                            aName = typeSplit[1];
+                            bName = typeSplit[2];
+                            eachLine = abfr.readLine();
+                            boolean xBool = false;
+                            boolean yBool = false; 
+                                while (eachLine != null) {
+                                    String[] accSplit = eachLine.split(",");
+                                    String accName = accSplit[0];
+    
+                                    if (accName.equals(bName)) {
+                    
+                                        String newFLine = "";
+                                        int startIndex = eachLine.indexOf("]") + 2;
+                                        //System.out.println(eachLine.substring(eachLine.indexOf("]") + 3, eachLine.indexOf("]") + 4));
+                                        /*
+                                        if (eachLine.substring(eachLine.indexOf(startIndex+3), eachLine.indexOf(startIndex+4)).equals("]")) {
+                                            newFLine = insertString(eachLine, startIndex, aName);
+                                        } else {
+                                            newFLine = insertString(eachLine, startIndex, "," + aName);
+                                        }
+                                        */
+                                        newFLine = insertString(eachLine, startIndex, aName + ",");
+                                        delete("accounts.txt", eachLine); 
+                                        delete("usernames.txt", aName); 
+                                        upw.println(aName);
+                                        upw.flush();
+                                        apw.println(newFLine); 
+                                        apw.flush();
+                                        System.out.println(newFLine + "\n");
+                                        xBool = true;       
+                                    }
+                                
+                                    if (accName.equals(aName)) {
+                                        //this is where i have to delete whats in friend request
+                            
+                                        int startIndex = eachLine.indexOf("]") + 2;
+                                        String newFLine = insertString(eachLine, startIndex, bName + ",");
+                                        int strSplice = newFLine.indexOf(bName, newFLine.indexOf(bName) + 1);
+                                        String fLine = newFLine.substring(0, strSplice) + "" + newFLine.substring(strSplice + bName.length());
+                                        delete("accounts.txt", eachLine); 
+                                        delete("usernames.txt", aName); 
+                                        upw.println(aName);
+                                        upw.flush();
+                                        apw.println(fLine); 
+                                        apw.flush();
+                                        System.out.println(newFLine + "\n");
+                                        yBool = true;
+                                        
+                                    }
+    
+                                    if(xBool && yBool) {
+                                        break;
+                                    }
+    
+                                    eachLine = abfr.readLine(); 
+                                } 
+    
+                    
+                            break;
+                            
+                        case "s:": 
+                            System.out.println(command);
+                            String[] infoSplit = command.split(":");
+                            String nameUser = infoSplit[1];
+                            String target = infoSplit[2];
+                            String checkLines = abfr.readLine();
+                            while (checkLines != null) {
+                                String[] accSplit = checkLines.split(",");
+                                String accName = accSplit[0];
+                                if (nameUser.equals(accName)) {
+                                    System.out.println("Not the problem");
+                                    //delete whats in the frq slot now and replace newFq
+                                    String newLine = checkLines.replace(target + ",", "");
+                                    System.out.println(newLine);
+                                    delete("accounts.txt", checkLines);
+                                    apw.println(newLine);
+                                    apw.flush();
+                                    break; 
+                                }
+                                checkLines = abfr.readLine();
+                            }
+                            break;        
+
 
                 }
 
@@ -370,4 +515,16 @@ public class NewServer implements Runnable {
         return "Y";
 
     }
+
+    public static String insertString(String originalString, int position,
+  String toBeInserted) {
+
+        StringBuffer buffer = new StringBuffer(originalString);
+        buffer.insert(position + 1, toBeInserted);
+        String newString = buffer.toString();
+
+ return newString;
+}
+
+
 }
