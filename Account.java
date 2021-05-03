@@ -17,12 +17,14 @@ public class Account {
     public ArrayList<String> likes;
     public String aboutMe;
     public ArrayList<String> friendReqs;
+    public String picName;
 
 
     public Account(String username, String password) {
 
         this.username = username;
         this.password = password;
+        this.picName = "";
         this.contacts = new ArrayList<String>();
         this.friendsList = new ArrayList<String>();
         this.likes = new ArrayList<String>();
@@ -31,10 +33,11 @@ public class Account {
 
     }
 
-    public Account(String username, String password, ArrayList<String> contacts, ArrayList<String> friendsList, ArrayList<String> likes, String aboutMe, ArrayList<String> friendReqs) {
+    public Account(String username, String password, String picName, ArrayList<String> contacts, ArrayList<String> friendsList, ArrayList<String> likes, String aboutMe, ArrayList<String> friendReqs) {
 
         this.username = username;
         this.password = password;
+        this.picName = picName;
         this.contacts = contacts;
         this.friendsList = friendsList;
         this.likes = likes;
@@ -81,6 +84,14 @@ public class Account {
 
     public void setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
+    }
+    
+    public String getPicName() {
+        return picName;
+    }
+    
+    public void setPicName(String picName) {
+        this.picName = picName; 
     }
 
     public void addFriend(String name) {
