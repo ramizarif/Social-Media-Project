@@ -26,3 +26,7 @@ Optional Features:
 Indicating whether a User is online.
 Adding profile photos.
 Allow accounts to be set to "private", where no other user can view them, and "protected", where only current friends can view them.
+
+1.Dom - Code
+2.Zachary - Report
+3.Ramiz - Presentation
