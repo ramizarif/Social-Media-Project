@@ -133,14 +133,18 @@ public class NewServer implements Runnable {
 
                     case "D:": //Delete line from accounts file
 
-                        System.out.println(command.substring(2));
-
-                        delete("accounts.txt", command.substring(2));
+                        String[] comSplitter = command.split(":");
+                        String oldString = comSplitter[1];
+                        String newString = comSplitter[2];
+                        replace("accounts.txt", oldString, newString);
                         break;
 
                     case "d:": //Delete line from usernames file
 
-                        delete("usernames.txt", command.substring(2));
+                        comSplitter = command.split(":");
+                        oldString = comSplitter[1];
+                        newString = comSplitter[2];
+                        replace("accounts.txt", oldString, newString);
                         break;
 
                     case "R:":
@@ -268,13 +272,7 @@ public class NewServer implements Runnable {
                                     //create a new line that will be added to the txt and delete the old one before 
                                     int startIndex = eachLine.lastIndexOf("[");
                                     String newFrLine = insertString(eachLine, startIndex, aName + ",");
-                                    delete("accounts.txt", eachLine); 
-                                    delete("usernames.txt", bName); 
-                                    upw.println(bName);
-                                    upw.flush();
-                                    apw.println(newFrLine); 
-                                    apw.flush();
-                                    System.out.println(newFrLine); 
+                                    replace("accounts.txt", eachLine, newFrLine); 
                                     break; 
                                     
                                 }
@@ -309,13 +307,7 @@ public class NewServer implements Runnable {
                                         }
                                         */
                                         newFLine = insertString(eachLine, startIndex, aName + ",");
-                                        delete("accounts.txt", eachLine); 
-                                        delete("usernames.txt", aName); 
-                                        upw.println(aName);
-                                        upw.flush();
-                                        apw.println(newFLine); 
-                                        apw.flush();
-                                        System.out.println(newFLine + "\n");
+                                        replace("accounts.txt", eachLine, newFLine); 
                                         xBool = true;       
                                     }
                                 
@@ -326,13 +318,8 @@ public class NewServer implements Runnable {
                                         String newFLine = insertString(eachLine, startIndex, bName + ",");
                                         int strSplice = newFLine.indexOf(bName, newFLine.indexOf(bName) + 1);
                                         String fLine = newFLine.substring(0, strSplice) + "" + newFLine.substring(strSplice + bName.length());
-                                        delete("accounts.txt", eachLine); 
-                                        delete("usernames.txt", aName); 
-                                        upw.println(aName);
-                                        upw.flush();
-                                        apw.println(fLine); 
-                                        apw.flush();
-                                        System.out.println(newFLine + "\n");
+                                        replace("accounts.txt", eachLine, fLine); 
+                                        
                                         yBool = true;
                                         
                                     }
@@ -348,7 +335,7 @@ public class NewServer implements Runnable {
                             break;
                             
                         case "s:": 
-                            System.out.println(command);
+                            
                             String[] infoSplit = command.split(":");
                             String nameUser = infoSplit[1];
                             String target = infoSplit[2];
@@ -357,13 +344,10 @@ public class NewServer implements Runnable {
                                 String[] accSplit = checkLines.split(",");
                                 String accName = accSplit[0];
                                 if (nameUser.equals(accName)) {
-                                    System.out.println("Not the problem");
+                                    
                                     //delete whats in the frq slot now and replace newFq
                                     String newLine = checkLines.replace(target + ",", "");
-                                    System.out.println(newLine);
-                                    delete("accounts.txt", checkLines);
-                                    apw.println(newLine);
-                                    apw.flush();
+                                    replace("accounts.txt", checkLines, newLine);
                                     break; 
                                 }
                                 checkLines = abfr.readLine();
@@ -409,30 +393,68 @@ public class NewServer implements Runnable {
         FileReader Read = new FileReader(File);
         BufferedReader bfr = new BufferedReader(Read);
 
-        File newFile = new File("temp.txt");
-        FileOutputStream fos = new FileOutputStream(newFile, true);
+        FileOutputStream fos = new FileOutputStream(File, false);
         PrintWriter pw = new PrintWriter(fos);
+
+        int counter = 0;
 
         while (true) {
 
             String line = bfr.readLine();
-            System.out.println(line);
 
             if (line == null) {
                 break;
             }
 
             if (line.equals(replace) || line.equals("")) {
-
+        
             } else {
                 pw.println(line);
                 pw.flush();
             }
         }
-        boolean y = File.delete();
-        boolean x = newFile.renameTo(new File(filename));
 
-        System.out.println(y + " " + x);
+        bfr.close();
+        pw.close();
+
+    }
+
+    public static void replace(String filename, String replace, String newString) throws IOException {
+
+        File File = new File(filename);
+        FileReader Read = new FileReader(File);
+        BufferedReader bfr = new BufferedReader(Read);
+
+        //FileOutputStream fos = new FileOutputStream(File, false);
+        //PrintWriter pw = new PrintWriter(fos);
+
+        ArrayList<String> lineList = new ArrayList<String>();
+        
+
+        while (true) {
+
+            String linee = bfr.readLine();
+            if (linee == null) {
+                break;
+            }
+            String line = linee.replaceAll("\\p{Punct}", "");;
+            String newReplace = replace.replaceAll("\\p{Punct}", "");
+
+            if (line.equals(newReplace) || line.equals("")) {
+            } else {
+                lineList.add(linee);
+
+            }
+        }
+
+        lineList.add(newString);
+        FileOutputStream fos = new FileOutputStream(File, false);
+        PrintWriter pw = new PrintWriter(fos);
+
+        for (int i = 0; i < lineList.size(); i++) {
+            pw.println(lineList.get(i));
+        }
+
 
         bfr.close();
         pw.close();
@@ -475,6 +497,8 @@ public class NewServer implements Runnable {
         bfr.close();
 
     }
+
+    //public ()
 
     public static void exprt(String filename, String acc) throws IOException {
 
